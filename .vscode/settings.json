@@ -1,3 +1,7 @@
 {
-  "python.analysis.autoImportCompletions": true
+  "files.exclude": {
+    ".idea": true,
+    ".pytest_cache": true,
+    "**/__pycache__": true
+  }
 }

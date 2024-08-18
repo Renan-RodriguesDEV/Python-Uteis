@@ -1,5 +1,4 @@
 import cv2
-import numpy
 import pytesseract as ptc
 
 ptc.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'

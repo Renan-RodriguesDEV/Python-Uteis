@@ -24,7 +24,8 @@ from deep_translator import GoogleTranslator
 
 # %%
 # configurando a api
-from creds_my import API_KEY
+from src.configs.creds_my import API_KEY
+
 genai.configure(api_key=API_KEY)
 
 # config do modelo de prompt

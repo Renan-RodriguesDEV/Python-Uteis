@@ -1,13 +1,12 @@
 # %%
 # libs necessarias
-from tensorflow.keras.callbacks import ReduceLROnPlateau
-from tensorflow import keras
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
+from tensorflow import keras
 from tensorflow.keras import layers
+from tensorflow.keras.callbacks import ReduceLROnPlateau
 from tensorflow.keras.models import Sequential
-
 
 # %%
 # carregando as imagens

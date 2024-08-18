@@ -5,20 +5,20 @@ class Pessoa:
         self.apelido=apelido
         pass
     
-    def exiNam(self):
+    def exi_nam(self):
         print(self.nome)
         
-    def exiId(self):
+    def exi_id(self):
         print(self.idade)
         
-    def exiAs(self)  :
+    def exi_as(self)  :
         print(self.apelido)
         
 
         
 pessoa = Pessoa('renan',19,'rzz')
-pessoa.exiNam()
-pessoa.exiAs()
-pessoa.exiId()
+pessoa.exi_nam()
+pessoa.exi_as()
+pessoa.exi_id()
 
         

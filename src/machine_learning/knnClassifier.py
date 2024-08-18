@@ -1,10 +1,10 @@
 # %%
-from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
+import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-import pandas as pd
-import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
 
 df = pd.read_csv(
     'C:\\Users\\renan\\OneDrive\\Documentos\\Python Scripts\\Machine_Learning\\exemplo2.csv')

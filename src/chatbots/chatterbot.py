@@ -1,13 +1,12 @@
 # %%
 # !pip install ChatterBot spacy
 
-# %%
-import numpy as np
-from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
-
 # isso aqui só precisa para corrigir o bug
 from spacy.cli.download import download
+
+# %%
+from chatterbot import ChatBot
 
 download("en_core_web_sm")
 

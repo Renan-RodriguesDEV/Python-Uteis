@@ -1,10 +1,12 @@
-from creds_my import user,senha,enviar_para
-from email.mime.text import MIMEText
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
 import datetime as dt
+import smtplib
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+from src.configs.creds_my import user, senha, enviar_para
+
 
 def createEmailMsg(from_msg, to_msg, password, body, attachment_path):
     msg = MIMEMultipart()
@@ -49,6 +51,8 @@ def enviar(from_mail, to_mail, password, msg_mail):
 
 
 if __name__ == '__main__':
+    from poo_with_python import Funcoes
+    print(Funcoes.fat(5))
     password = senha
     usuario = user
     to_msg = enviar_para

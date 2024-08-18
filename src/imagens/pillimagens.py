@@ -1,12 +1,13 @@
 # %%
 # !pip install pillow
 
+import time
+
+from PIL import Image
+from pyautogui import press
+from selenium import webdriver
 # %%
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
-from selenium import webdriver
-from pyautogui import press
-import time
-from PIL import Image
 
 # Abrir a imagem
 imagem = Image.open(

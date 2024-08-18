@@ -1,2 +1,3 @@
-ArquivosAnalise/
-/creds_my.py
+configs/
+.idea
+__pycache__
