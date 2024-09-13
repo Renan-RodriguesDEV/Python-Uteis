@@ -3,5 +3,20 @@
     ".idea": true,
     ".pytest_cache": true,
     "**/__pycache__": true
-  }
+  },
+  "sqltools.connections": [
+    {
+      "mysqlOptions": {
+        "authProtocol": "default",
+        "enableSsl": "Disabled"
+      },
+      "previewLimit": 50,
+      "server": "srv720.hstgr.io",
+      "port": 3306,
+      "driver": "MySQL",
+      "name": "Droone",
+      "username": "u611546537_DBA_Droone",
+      "database": "u611546537_Droone"
+    }
+  ]
 }

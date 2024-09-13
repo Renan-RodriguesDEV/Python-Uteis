@@ -1,3 +1,4 @@
+from fastapi.responses import RedirectResponse
 from fastapi import FastAPI
 import uvicorn
 
@@ -17,6 +18,12 @@ def deploy(num: str, msg: str, time: str):
 @app.get("/")
 def getdata():
     return dados
+
+
+@app.get("/redirect", tags=["redirect"])
+def redrect():
+
+    return RedirectResponse(url="https://www.youtube.com/")
 
 
 if __name__ == "__main__":
