@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <input id="email" type="email" placeholder="seuemail@gmail.com" />
+    <input id="senha" type="password" placeholder="000000" />
+    <button id="logar" type="submit" onclick="logar()">Enviar</button>
+    <!-- Referência ao arquivo JavaScript -->
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+  </body>
+</html>
