@@ -1,14 +1,16 @@
 import streamlit as st
 
-side = st.sidebar.title("Opções")
+from schemas import select_user
 
-pg2 = st.Page("pages/produtos.py", icon="📦")
+side = st.sidebar.title("Opções")
 
 
 # Função de autenticação simulada (exemplo simples)
+@st.cache_data
 def autenticar_usuario(username, password):
+    user = select_user(username, password)
     # Aqui você pode adicionar lógica de verificação com um banco de dados ou API
-    if username == "admin" and password == "1234":
+    if username == user.get("username") and password == user.get("password"):
         return True
     return False
 
@@ -24,7 +26,7 @@ def tela_login():
             st.session_state["autenticado"] = True
             st.session_state["usuario"] = username
             st.session_state["pagina"] = "homepage"  # Redireciona para a homepage
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("Usuário ou senha incorretos")
 
@@ -34,26 +36,25 @@ def homepage():
     st.title(f"Bem-vindo, {st.session_state['usuario']}!")
 
     # Opções de navegação
-    if st.sidebar.button("Cadastro de Produtos"):
+    if st.button("Cadastro de Produtos"):
         st.session_state["pagina"] = "cadastro_produto"
-        st.experimental_rerun()
-
-    if st.sidebar.button("Cadastro de Clientes"):
+        st.rerun()
+    if st.button("Cadastro de Clientes"):
         st.session_state["pagina"] = "cadastro_cliente"
-        st.experimental_rerun()
+        st.rerun()
 
-    if st.sidebar.button("Consulta de Produtos"):
+    if st.button("Consulta de Produtos"):
         st.session_state["pagina"] = "consulta_produto"
-        st.experimental_rerun()
+        st.rerun()
 
-    if st.sidebar.button("Consulta de Dívida de Clientes"):
+    if st.button("Consulta de Dívida de Clientes"):
         st.session_state["pagina"] = "consulta_divida"
-        st.experimental_rerun()
+        st.rerun()
 
     if st.sidebar.button("Logout"):
         st.session_state["autenticado"] = False
         st.session_state["pagina"] = "login"
-        st.experimental_rerun()
+        st.rerun()
 
 
 # Função para o cadastro de produtos
@@ -68,7 +69,7 @@ def cadastro_produto():
 
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
-        st.experimental_rerun()
+        st.rerun()
 
 
 # Função para o cadastro de clientes
@@ -83,7 +84,7 @@ def cadastro_cliente():
 
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
-        st.experimental_rerun()
+        st.rerun()
 
 
 # Função para a consulta de produtos
@@ -95,7 +96,7 @@ def consulta_produto():
 
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
-        st.experimental_rerun()
+        st.rerun()
 
 
 # Função para a consulta de dívida de clientes
@@ -115,7 +116,7 @@ def consulta_divida():
 
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
-        st.experimental_rerun()
+        st.rerun()
 
 
 # Configurando a sessão para manter o estado do login e da página
