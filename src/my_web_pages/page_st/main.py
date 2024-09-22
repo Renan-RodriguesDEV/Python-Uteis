@@ -1,14 +1,13 @@
 import streamlit as st
 
-from schemas import select_user
-
-side = st.sidebar.title("Opções")
+from schemas import *
 
 
 # Função de autenticação simulada (exemplo simples)
 @st.cache_data
 def autenticar_usuario(username, password):
     user = select_user(username, password)
+    print(user.get("username"), user.get("password"))
     # Aqui você pode adicionar lógica de verificação com um banco de dados ou API
     if username == user.get("username") and password == user.get("password"):
         return True
@@ -65,6 +64,7 @@ def cadastro_produto():
     qtde = st.number_input("Quantidade", min_value=0, step=1)
 
     if st.button("Cadastrar Produto"):
+        register_product(nome, float(preco), int(qtde))
         st.success(f"Produto {nome} cadastrado com sucesso!")
 
     if st.button("Voltar"):
@@ -76,10 +76,13 @@ def cadastro_produto():
 def cadastro_cliente():
     st.title("Cadastro de Clientes")
     nome = st.text_input("Nome do Cliente")
-    email = st.text_input("Email do Cliente")
+    cpf = st.text_input("CPF do Cliente", placeholder="123.456.789-00")
+    email = st.text_input("Email do Cliente", placeholder="kriptovenio@gmail.com")
     telefone = st.text_input("Telefone do Cliente")
 
     if st.button("Cadastrar Cliente"):
+        cpf = cpf.replace(".", "").replace("-", "")
+        register_client(nome, cpf, telefone, email)
         st.success(f"Cliente {nome} cadastrado com sucesso!")
 
     if st.button("Voltar"):
@@ -90,9 +93,16 @@ def cadastro_cliente():
 # Função para a consulta de produtos
 def consulta_produto():
     st.title("Consulta de Produtos")
+    produtos = select_all_produtoss()
     # Aqui você poderia listar os produtos cadastrados. Exemplo simples:
-    st.write("Produto 1: Nome: Laptop, Preço: R$3000, Quantidade: 5")
-    st.write("Produto 2: Nome: Teclado, Preço: R$150, Quantidade: 10")
+    st.table(produtos)
+    nome = st.text_input("Digite o nome do produto para consultar")
+    produto = select_product_by_name(nome)
+    if st.button("Consultar"):
+        if produto.shape[0] > 0:
+            st.write(produto)
+        else:
+            st.error("Nenhum produto encontrado com esse nome")
 
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
@@ -103,17 +113,11 @@ def consulta_produto():
 def consulta_divida():
     st.title("Consulta de Dívida de Clientes")
     # Simulação de consulta de dívida. Poderia ser ligado a um banco de dados.
-    cliente = st.selectbox(
-        "Selecione o cliente", ["Cliente 1", "Cliente 2", "Cliente 3"]
-    )
+    df_clientes = select_all_clientes()
 
-    if cliente == "Cliente 1":
-        st.write("Dívida Atual: R$ 500,00")
-    elif cliente == "Cliente 2":
-        st.write("Dívida Atual: R$ 1000,00")
-    else:
-        st.write("Dívida Atual: R$ 0,00")
-
+    cliente = st.selectbox("Selecione o cliente", df_clientes["nome"].to_list())
+    divida = select_debt_by_client(cliente)
+    st.write(f"Divida do cliente {cliente}: R$ {divida}")
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
         st.rerun()

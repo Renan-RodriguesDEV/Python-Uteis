@@ -1,5 +1,7 @@
+import datetime
 import pymysql
 import pandas as pd
+from pyparsing import col
 
 db_data = {
     "host": "localhost",
@@ -15,8 +17,9 @@ def select_all_produtoss():
     connective = pymysql.connect(**db_data)
     with connective as connective:
         with connective.cursor() as cursor:
-            cursor.execute("SELECT nome FROM produtos")
-            df = pd.DataFrame(cursor.fetchall())
+            cursor.execute("SELECT nome,preco,estoque FROM produtos")
+            df = pd.DataFrame(cursor.fetchall(), columns=["nome", "preco", "estoque"])
+            df.columns = ["Nome", "Preço", "Estoque"]
             return df
 
 
@@ -25,8 +28,8 @@ def select_all_clientes():
     connective = pymysql.connect(**db_data)
     with connective as connective:
         with connective.cursor() as cursor:
-            cursor.execute("SELECT nome FROM clientes")
-            df = pd.DataFrame(cursor.fetchall())
+            cursor.execute("SELECT nome,cpf,telefone,email FROM clientes")
+            df = pd.DataFrame(cursor.fetchall(), columns=["nome"])
             return df
 
 
@@ -47,6 +50,18 @@ def select_cliente_by_name(name):
         with connective.cursor() as cursor:
             cursor.execute("SELECT nome FROM clientes WHERE nome = %s", (name,))
             df = pd.DataFrame(cursor.fetchall())
+            return df
+
+
+def select_product_by_name(name):
+    connective = pymysql.connect(**db_data)
+    with connective as connective:
+        with connective.cursor() as cursor:
+            cursor.execute(
+                "SELECT nome,preco,estoque FROM produtos WHERE nome = %s", (name,)
+            )
+            df = pd.DataFrame(cursor.fetchall(), columns=["nome", "preco", "estoque"])
+            df.columns = ["Nome", "Preço", "Estoque"]
             return df
 
 
@@ -88,7 +103,7 @@ def register_client(name, cpf, telefone, email):
 
 
 # Função para registrar uma venda
-def register_sale(cliente, produtos_quantidade):
+def register_sale(cliente, produtos_quantidade, data=datetime.datetime.now()):
     """
     Registra uma venda para um cliente, inserindo ou atualizando a quantidade de produtos adquiridos.
 
@@ -151,15 +166,17 @@ def select_debt_by_client(cliente):
     with connective as connective:
         with connective.cursor() as cursor:
             query = """
-                SELECT SUM(p.preco * cp.quantidade) AS divida_total
+                SELECT c.nome,SUM(p.preco * cp.quantidade) AS divida_total
                 FROM produtos p
                 JOIN cliente_produto cp ON p.id = cp.id_produto
                 JOIN clientes c ON c.id = cp.id_cliente
                 WHERE c.nome = %s
             """
             cursor.execute(query, (cliente,))
-            df = pd.DataFrame(cursor.fetchall(), columns=["divida_total"])
-            return df
+            data = cursor.fetchone()
+            if data.get("divida_total") is not None:
+                return data.get("divida_total")
+            return 0.00
 
 
 def select_user(name, passwd):
@@ -173,8 +190,7 @@ def select_user(name, passwd):
                 senha = result["senha"]
                 usuario = result["nome"]
                 return {"username": usuario, "password": senha}
-            else:
-                return {"username": "", "password": ""}
+            return {"username": "", "password": ""}
 
 
 # Teste básico
