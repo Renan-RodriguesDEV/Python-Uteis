@@ -50,6 +50,10 @@ def homepage():
         st.session_state["pagina"] = "consulta_divida"
         st.rerun()
 
+    if st.button("Atualizar Dívida de Clientes"):
+        st.session_state["pagina"] = "atualizar_divida"
+        st.rerun()
+
     if st.sidebar.button("Logout"):
         st.session_state["autenticado"] = False
         st.session_state["pagina"] = "login"
@@ -64,6 +68,7 @@ def cadastro_produto():
     qtde = st.number_input("Quantidade", min_value=0, step=1)
 
     if st.button("Cadastrar Produto"):
+        # preco = preco.replace(",", ".")
         register_product(nome, float(preco), int(qtde))
         st.success(f"Produto {nome} cadastrado com sucesso!")
 
@@ -93,7 +98,7 @@ def cadastro_cliente():
 # Função para a consulta de produtos
 def consulta_produto():
     st.title("Consulta de Produtos")
-    produtos = select_all_produtoss()
+    produtos = select_all_produtos()
     # Aqui você poderia listar os produtos cadastrados. Exemplo simples:
     st.table(produtos)
     nome = st.text_input("Digite o nome do produto para consultar")
@@ -118,6 +123,29 @@ def consulta_divida():
     cliente = st.selectbox("Selecione o cliente", df_clientes["nome"].to_list())
     divida = select_debt_by_client(cliente)
     st.write(f"Divida do cliente {cliente}: R$ {divida}")
+    if st.button("Consulta completa"):
+        st.table(select_all_sales_by_client(cliente))
+    if st.button("Voltar"):
+        st.session_state["pagina"] = "homepage"
+        st.rerun()
+
+
+def atualizar_divida():
+    st.title("Atualizar Dívida de Clientes")
+    # Simulação de consulta de dívida. Poderia ser ligado a um banco de dados.
+    df_clientes = select_all_clientes()
+    df_produtos = select_all_produtos()
+    cliente = st.selectbox("Selecione o cliente", df_clientes["nome"].to_list())
+    produto = st.selectbox("Selecione o produto", df_produtos)
+    preco = select_price_by_name(produto)["preco"]
+    quantidade = st.number_input("Quantidade", min_value=1, step=1)
+    if st.button("Atualizar"):
+        is_register = register_sale(cliente, produto, quantidade)
+        if is_register:
+            st.success(f"Venda registrada com sucesso!")
+        else:
+            st.error("Erro ao registrar a venda")
+
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
         st.rerun()
@@ -143,5 +171,7 @@ if st.session_state["autenticado"]:
         consulta_produto()
     elif st.session_state["pagina"] == "consulta_divida":
         consulta_divida()
+    elif st.session_state["pagina"] == "atualizar_divida":
+        atualizar_divida()
 else:
     tela_login()

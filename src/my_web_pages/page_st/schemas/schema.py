@@ -13,7 +13,7 @@ db_data = {
 
 
 # Função para selecionar todos os produtos
-def select_all_produtoss():
+def select_all_produtos():
     connective = pymysql.connect(**db_data)
     with connective as connective:
         with connective.cursor() as cursor:
@@ -76,88 +76,56 @@ def select_count_by_name(name):
 
 
 # Função para registrar um produto
-def register_product(name, price, count):
-    connective = pymysql.connect(**db_data)
-    with connective as connective:
-        with connective.cursor() as cursor:
-            cursor.execute(
-                "INSERT INTO produtos (nome, preco, estoque) VALUES (%s, %s, %s)",
-                (name, price, count),
-            )
-            connective.commit()
-            return True
-
-
-# Função para registrar um cliente
-def register_client(name, cpf, telefone, email):
-    connective = pymysql.connect(**db_data)
-    with connective as connective:
-        with connective.cursor() as cursor:
-            sentence = "INSERT INTO clientes (nome, cpf, telefone, email) VALUES (%s, %s, %s, %s)"
-            cursor.execute(
-                sentence,
-                (name, cpf, telefone, email),
-            )
-            connective.commit()
-            return True
-
-
-# Função para registrar uma venda
-def register_sale(cliente, produtos_quantidade, data=datetime.datetime.now()):
-    """
-    Registra uma venda para um cliente, inserindo ou atualizando a quantidade de produtos adquiridos.
-
-    :param cliente: Nome do cliente.
-    :param produtos_quantidade: Lista de tuplas com (id_produto, quantidade).
-    """
+def register_sale(cliente, produto, quantidade: int = 1):
     connective = pymysql.connect(**db_data)
     with connective as connective:
         with connective.cursor() as cursor:
             # Obter o ID do cliente pelo nome
             cursor.execute("SELECT id FROM clientes WHERE nome = %s", (cliente,))
-            result = cursor.fetchone()
-            if result:
-                id_cliente = result["id"]
+            result_client = cursor.fetchone()
+            if result_client:
+                id_cliente = result_client["id"]
             else:
                 raise ValueError(f"Cliente '{cliente}' não encontrado.")
 
-            # Inserir ou atualizar cada produto comprado
-            for id_produto, quantidade in produtos_quantidade:
-                # Verificar se o cliente já comprou este produto
+            cursor.execute("SELECT id, preco FROM produtos WHERE nome = %s", (produto,))
+            result_product = cursor.fetchone()
+            if result_product:
+                id_produto = result_product["id"]
+                preco = result_product["preco"]
+            else:
+                raise ValueError(f"Produto '{produto}' não encontrado.")
+
+            # Verificar se o cliente já possui o produto registrado
+            cursor.execute(
+                "SELECT quantidade FROM cliente_produto WHERE id_cliente = %s AND id_produto = %s",
+                (id_cliente, id_produto),
+            )
+            existing_record = cursor.fetchone()
+
+            total = preco * quantidade
+
+            if existing_record:
+                # Atualizar a quantidade e o total do produto
+                nova_quantidade = existing_record["quantidade"] + quantidade
+                novo_total = preco * nova_quantidade
                 cursor.execute(
-                    """
-                    SELECT quantidade FROM cliente_produto 
-                    WHERE id_cliente = %s AND id_produto = %s
-                    """,
-                    (id_cliente, id_produto),
+                    "UPDATE cliente_produto SET quantidade = %s, total = %s WHERE id_cliente = %s AND id_produto = %s",
+                    (nova_quantidade, novo_total, id_cliente, id_produto),
                 )
-                existing = cursor.fetchone()
+                connective.commit()
+                return True
 
-                if existing:
-                    # Atualizar a quantidade se o produto já foi comprado antes
-                    nova_quantidade = existing["quantidade"] + quantidade
-                    cursor.execute(
-                        """
-                        UPDATE cliente_produto 
-                        SET quantidade = %s, preco = (
-                            SELECT preco FROM produtos WHERE id = %s
-                        )
-                        WHERE id_cliente = %s AND id_produto = %s
-                        """,
-                        (nova_quantidade, id_produto, id_cliente, id_produto),
-                    )
-                else:
-                    # Inserir nova compra
-                    cursor.execute(
-                        """
-                        INSERT INTO cliente_produto (id_cliente, id_produto, preco, quantidade)
-                        VALUES (%s, %s, (SELECT preco FROM produtos WHERE id = %s), %s)
-                        """,
-                        (id_cliente, id_produto, id_produto, quantidade),
-                    )
-
+            # Inserir novo registro com total
+            query = """
+            INSERT INTO cliente_produto (id_cliente, id_produto, preco, quantidade, total) 
+            VALUES (%s, %s, %s, %s, %s)
+            """
+            rows = cursor.execute(
+                query, (id_cliente, id_produto, preco, quantidade, total)
+            )
             connective.commit()
-            return True
+            return True if rows > 0 else False
 
 
 # Função para consultar a dívida do cliente
@@ -166,17 +134,14 @@ def select_debt_by_client(cliente):
     with connective as connective:
         with connective.cursor() as cursor:
             query = """
-                SELECT c.nome,SUM(p.preco * cp.quantidade) AS divida_total
-                FROM produtos p
-                JOIN cliente_produto cp ON p.id = cp.id_produto
-                JOIN clientes c ON c.id = cp.id_cliente
+                SELECT c.nome, SUM(cp.total) AS divida_total
+                FROM cliente_produto cp 
+                JOIN clientes c ON cp.id_cliente = c.id
                 WHERE c.nome = %s
             """
             cursor.execute(query, (cliente,))
-            data = cursor.fetchone()
-            if data.get("divida_total") is not None:
-                return data.get("divida_total")
-            return 0.00
+            data = cursor.fetchall()
+            return data[0].get("divida_total") if data else 0.00
 
 
 def select_user(name, passwd):
@@ -193,7 +158,23 @@ def select_user(name, passwd):
             return {"username": "", "password": ""}
 
 
+def select_all_sales_by_client(cliente):
+    connective = pymysql.connect(**db_data)
+    with connective as connective:
+        with connective.cursor() as cursor:
+            query = """
+                SELECT c.nome, p.nome AS produto, cp.preco, cp.quantidade, cp.total, cp.data
+                FROM cliente_produto cp 
+                JOIN clientes c ON cp.id_cliente = c.id
+                JOIN produtos p ON cp.id_produto = p.id
+                WHERE c.nome = %s
+            """
+            cursor.execute(query, (cliente,))
+            data = cursor.fetchall()
+            return pd.DataFrame(data)
+
+
 # Teste básico
 if __name__ == "__main__":
-    df = select_price_by_name("banana")
+    df = select_debt_by_client("Renan de Souza Rodrigues")
     print(df)
