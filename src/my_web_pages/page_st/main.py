@@ -2,6 +2,13 @@ import streamlit as st
 
 from schemas import *
 
+st.set_page_config(
+    page_title="Sistema de Vendas",
+    page_icon=":moneybag:",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
+
 
 # Função de autenticação simulada (exemplo simples)
 @st.cache_data
@@ -18,9 +25,14 @@ def autenticar_usuario(username, password):
 def tela_login():
     st.title("Login")
     username = st.text_input("Usuário")
-    password = st.text_input("Senha", type="password")
-
-    if st.button("Login"):
+    password = st.text_input(
+        "Senha",
+        type="password",
+        max_chars=6,
+    )
+    if username == "" or password == "":
+        st.warning("Por favor, preencha os campos de usuário e senha")
+    if st.button("Login", type="primary"):
         if autenticar_usuario(username, password):
             st.session_state["autenticado"] = True
             st.session_state["usuario"] = username
@@ -33,24 +45,30 @@ def tela_login():
 # Função para a homepage
 def homepage():
     st.title(f"Bem-vindo, {st.session_state['usuario']}!")
-
+    x, y = st.columns([2, 1], gap="medium", vertical_alignment="top")
     # Opções de navegação
-    if st.button("Cadastro de Produtos"):
+    x.text_area(
+        "Feedback do cliente",
+        placeholder="Deixe seu feedback aqui",
+        max_chars=255,
+        height=150,  # Define a altura fixa para o text_area
+    )
+    if y.button("Cadastro de Produtos", use_container_width=True):
         st.session_state["pagina"] = "cadastro_produto"
         st.rerun()
-    if st.button("Cadastro de Clientes"):
+    if y.button("Cadastro de Clientes", use_container_width=True):
         st.session_state["pagina"] = "cadastro_cliente"
         st.rerun()
 
-    if st.button("Consulta de Produtos"):
+    if y.button("Consulta de Produtos", use_container_width=True):
         st.session_state["pagina"] = "consulta_produto"
         st.rerun()
 
-    if st.button("Consulta de Dívida de Clientes"):
+    if y.button("Consulta de Dívida de Clientes", use_container_width=True):
         st.session_state["pagina"] = "consulta_divida"
         st.rerun()
 
-    if st.button("Atualizar Dívida de Clientes"):
+    if y.button("Atualizar Dívida de Clientes", use_container_width=True):
         st.session_state["pagina"] = "atualizar_divida"
         st.rerun()
 
@@ -67,7 +85,7 @@ def cadastro_produto():
     preco = st.number_input("Preço", min_value=0.0, step=0.01)
     qtde = st.number_input("Quantidade", min_value=0, step=1)
 
-    if st.button("Cadastrar Produto"):
+    if st.button("Cadastrar Produto", type="primary"):
         # preco = preco.replace(",", ".")
         register_product(nome, float(preco), int(qtde))
         st.success(f"Produto {nome} cadastrado com sucesso!")
@@ -85,7 +103,7 @@ def cadastro_cliente():
     email = st.text_input("Email do Cliente", placeholder="kriptovenio@gmail.com")
     telefone = st.text_input("Telefone do Cliente")
 
-    if st.button("Cadastrar Cliente"):
+    if st.button("Cadastrar Cliente", type="primary"):
         cpf = cpf.replace(".", "").replace("-", "")
         register_client(nome, cpf, telefone, email)
         st.success(f"Cliente {nome} cadastrado com sucesso!")
@@ -103,7 +121,7 @@ def consulta_produto():
     st.table(produtos)
     nome = st.text_input("Digite o nome do produto para consultar")
     produto = select_product_by_name(nome)
-    if st.button("Consultar"):
+    if st.button("Consultar", type="primary"):
         if produto.shape[0] > 0:
             st.write(produto)
         else:
