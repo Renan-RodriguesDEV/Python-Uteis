@@ -2,32 +2,46 @@ import requests
 import json
 
 # URL da API (note que há um espaço vazio onde deveria estar o ID do número de telefone)
-url = "https://graph.facebook.com/v20.0//messages"
+
+
+# url = "https://graph.facebook.com/v20.0//messages"
+# Configurações
+phone_number_id = "422087710990271"
 
 # Token de acesso à API
-access_token = "<ACESS_TOKEN>"
+access_token = "EAAFPzmpZAYyEBOzqgVgqET9DNgdgTgxp6brOZCQcurik5kt5yRQhZAU22OAj6KqA069M47y0TFNZC6BZBcwBLoJrHYIZBjnNw4fGdz8rZCpEuBG27h7hHDIp4zhmoFJwRHHXXTmt5knm6cfZAjFMHLnKOblA9UByAEuFap0yDqfZCdfIBqw2FXo6p5gQ8r6AtNaotLyMVcskwAAZAUuJ18W2eIPw2kA2gZD"
 
-# Cabeçalhos da requisição
+to_phone_number = "11122233344"
+
+url = f"https://graph.facebook.com/v20.0/{phone_number_id}/messages"
+
 headers = {
     "Authorization": f"Bearer {access_token}",
     "Content-Type": "application/json",
 }
 
-# Dados da requisição (corpo do JSON)
 data = {
     "messaging_product": "whatsapp",
-    "to": "",  # Número de telefone do destinatário (formato internacional, ex: "5511999999999")
-    "type": "template",
-    "template": {"name": "hello_world", "language": {"code": "en_US"}},
+    "recipient_type": "individual",
+    "to": to_phone_number,
+    "type": "interactive",
+    "interactive": {
+        "type": "button",
+        "header": {
+            "type": "image",
+            "image": {"link": "https://exemplo.com/imagem.jpg"},
+        },
+        "body": {"text": "Olá tudo bem? Confira este link: https://exemplo.com"},
+        "action": {
+            "buttons": [
+                {"type": "reply", "reply": {"id": "sim_button", "title": "Sim"}},
+                {"type": "reply", "reply": {"id": "nao_button", "title": "Não"}},
+            ]
+        },
+    },
 }
 
-# Enviar a requisição POST
 response = requests.post(url, headers=headers, data=json.dumps(data))
 
-# Verificar o resultado da requisição
-if response.status_code == 200:
-    print("Mensagem enviada com sucesso!")
-    print(response.json())  # Exibe a resposta JSON
-else:
-    print(f"Erro ao enviar mensagem: {response.status_code}")
-    print(response.text)  # Exibe a mensagem de erro
+print(response.status_code)
+print(response.json())

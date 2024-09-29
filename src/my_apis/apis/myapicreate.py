@@ -2,6 +2,7 @@ from fastapi.responses import RedirectResponse
 from fastapi import FastAPI
 import uvicorn
 
+# TODO: Para rodar no terminal -> uvicorn {nome_do_arquivo}:app --reload --port 8080
 app = FastAPI()
 
 dados = {"numero": "", "msg": "", "time": ""}
