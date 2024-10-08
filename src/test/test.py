@@ -1,3 +1,4 @@
+import datetime
 import requests
 
 
@@ -11,4 +12,15 @@ def send_whats(nome: str, mensagem: str, telefone: str):
         print(e)
 
 
-send_whats("Renan", "Teste 2", "556791758876")
+send_whats("Renan", "Teste 2", "5519998722472")
+
+acumulador_alertas = {
+    1: {"qtde": 0, "timestemp": datetime.datetime.now()},
+    2: {"qtde": 0, "timestemp": datetime.datetime.now()},
+}
+
+if __name__ == "__main__":
+    acumulador_alertas[1]["qtde"] += 1
+    acumulador_alertas[1]["timestemp"] += datetime.timedelta(hours=1)
+    print(acumulador_alertas[1]["qtde"])
+    print(acumulador_alertas[1]["timestemp"])
