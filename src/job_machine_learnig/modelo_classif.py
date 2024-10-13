@@ -189,8 +189,7 @@ def classificar_for_wpp(path_img):
     score = tf.nn.softmax(predictions[0])
     plot_one_img(img, score)
     print(
-        f"classificada como {nomes_classes[np.argmax(score)]} \ncom uma accuracy de {
-            100 * np.max(score):.2f} %."
+        f"classificada como {nomes_classes[np.argmax(score)]} \ncom uma accuracy de {100 * np.max(score):.2f} %."
     )
 
 
