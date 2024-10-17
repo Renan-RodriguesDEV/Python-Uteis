@@ -1,4 +1,4 @@
-# %%
+
 # libs necessarias
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,11 +8,11 @@ from tensorflow.keras import layers
 from tensorflow.keras.callbacks import ReduceLROnPlateau
 from tensorflow.keras.models import Sequential
 
-# %%
+
 # carregando as imagens
 data_base_path = r'C:\Users\User\Downloads\Imagens\train'
 
-# %%
+
 # definido o tamanho do lote, largura e altura das imagens
 batch_size = 32
 img_width, img_height = 180, 180
@@ -20,7 +20,7 @@ epochs = 20
 learning_rate = 0.0001  # Taxa de aprendizagem para o otimizador
 print(img_height, img_width)
 
-# %%
+
 # separando o conjunto de dados em treinamento e validação
 train_ds = tf.keras.utils.image_dataset_from_directory(
     data_base_path,
@@ -44,11 +44,11 @@ val_ds = tf.keras.utils.image_dataset_from_directory(
 )
 
 
-# %%
+
 nomes_classes = train_ds.class_names
 nomes_classes
 
-# %%
+
 
 # Exibindo algumas imagens de treinamento
 
@@ -66,17 +66,17 @@ def plot_img(dataset):
 
 plot_img(train_ds)
 
-# %%
+
 
 plot_img(val_ds)
 
 
-# %%
+
 num_classe = len(nomes_classes)
 num_classe
 
 
-# %%
+
 # Configurações automáticas de desempenho
 AUTOTUNE = tf.data.AUTOTUNE
 
@@ -87,22 +87,22 @@ train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
 val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 
-# %%
+
 # Normalização das imagens
 shape = (img_width, img_height, 3)
 shape
 
-# %%
+
 # Normaliza os valores dos pixels das imagens para o intervalo [0,1]
 normalizador = layers.Rescaling(1./255)
 
-# %%
+
 normalized_ds = train_ds.map(lambda x, y: (normalizador(x), y))
 image_batch, labels_batch = next(iter(normalized_ds))
 first_image = image_batch[0]
 print(np.min(first_image), np.max(first_image))
 
-# %%
+
 # Criando o modelo de rede neural
 model = Sequential([
     layers.Rescaling(1./255, input_shape=shape),  # Camada de normalização
@@ -123,16 +123,16 @@ model = Sequential([
     layers.Dense(num_classe, activation='softmax')
 ])
 
-# %%
+
 model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
 
-# %%
+
 model.summary()
 
-# %%
+
 
 # Treinando o modelo
 history = model.fit(
@@ -142,7 +142,7 @@ history = model.fit(
 
 )
 
-# %%
+
 acc = history.history['accuracy']
 val_acc = history.history['val_accuracy']
 
@@ -166,15 +166,14 @@ plt.legend(loc='upper right')
 plt.title('Treino and Validacao Loss')
 plt.show()
 
-# %%
+
 
 
 def plot_one_img(img, score):
     # Plotar a imagem
     plt.figure(figsize=(8, 8))
     plt.imshow(img)
-    plt.title(f'Classificada como {nomes_classes[np.argmax(
-        score)]}\ncom uma precisão de {100 * np.max(score):.2f}%')
+    plt.title(f'Classificada como {nomes_classes[np.argmax(score)]}\ncom uma precisão de {100 * np.max(score):.2f}%')
     plt.axis('off')
     plt.show()
 
@@ -190,8 +189,7 @@ def classificar_for_wpp(path_img):
     score = tf.nn.softmax(predictions[0])
     plot_one_img(img, score)
     print(
-        f"classificada como {nomes_classes[np.argmax(score)]} \ncom uma accuracy de {
-            100 * np.max(score):.2f} %."
+        f"classificada como {nomes_classes[np.argmax(score)]} \ncom uma accuracy de {100 * np.max(score):.2f} %."
     )
 
 
@@ -206,7 +204,7 @@ classificar_for_wpp(
 # for imagem in os.listdir(path):
 #         classificar_for_wpp(os.path.join(path,imagem))
 
-# %%
+
 data_augmentation = keras.Sequential(
     [
         layers.RandomFlip("horizontal", input_shape=shape),
@@ -216,7 +214,7 @@ data_augmentation = keras.Sequential(
 )
 
 
-# %%
+
 model = Sequential([
     data_augmentation,
     layers.Rescaling(1./255, input_shape=shape),
@@ -234,7 +232,7 @@ model = Sequential([
 ])
 
 
-# %%
+
 
 # Compilando o modelo
 model.compile(optimizer='adam',
@@ -242,10 +240,10 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 
-# %%
+
 model.summary()
 
-# %%
+
 
 
 # Compilando o modelo
@@ -263,7 +261,7 @@ history = model.fit(
 )
 
 
-# %%
+
 classificar_for_wpp(
     r'C:\Users\User\Desktop\modelo_classifier\imagens_para_teste\mediana (16).jpg')
 classificar_for_wpp(
