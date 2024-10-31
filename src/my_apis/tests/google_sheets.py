@@ -6,6 +6,7 @@ import pymysql
 from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from google.oauth2.service_account import Credentials
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -177,9 +178,6 @@ if __name__ == "__main__":
         f"Relatório atualizado no Google Sheets com sucesso ás {datetime.now().strftime('%d-%m-%Y, %H:%M:%S')}"
     )
 
-
-from googleapiclient.discovery import build
-from google.oauth2.service_account import Credentials
 
 # Configurações de escopo e credenciais
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
