@@ -1,6 +1,6 @@
 -- Cria o banco de dados
-CREATE DATABASE IF NOT EXISTS padaria;
-USE padaria;
+CREATE DATABASE IF NOT EXISTS comercio;
+USE comercio;
 
 -- Tabela clientes
 CREATE TABLE IF NOT EXISTS clientes (

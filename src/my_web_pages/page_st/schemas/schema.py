@@ -1,13 +1,12 @@
 import datetime
 import pymysql
 import pandas as pd
-from pyparsing import col
 
 db_data = {
     "host": "localhost",
     "user": "root",
     "password": "",
-    "database": "padaria",
+    "database": "comercio",
     "cursorclass": pymysql.cursors.DictCursor,
 }
 
@@ -73,6 +72,33 @@ def select_count_by_name(name):
             cursor.execute("SELECT estoque FROM produtos WHERE nome = %s", (name,))
             df = pd.DataFrame(cursor.fetchall())
             return df
+
+
+# Função para registrar um cliente
+def register_client(name, cpf, telefone, email):
+    connective = pymysql.connect(**db_data)
+    with connective as connective:
+        with connective.cursor() as cursor:
+            sentence = "INSERT INTO clientes (nome, cpf, telefone, email) VALUES (%s, %s, %s, %s)"
+            cursor.execute(
+                sentence,
+                (name, cpf, telefone, email),
+            )
+            connective.commit()
+            return True
+
+
+# Função para registrar um produto
+def register_product(name, price, count):
+    connective = pymysql.connect(**db_data)
+    with connective as connective:
+        with connective.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO produtos (nome, preco, estoque) VALUES (%s, %s, %s)",
+                (name, price, count),
+            )
+            connective.commit()
+            return True
 
 
 # Função para registrar um produto
