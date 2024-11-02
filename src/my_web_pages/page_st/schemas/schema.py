@@ -1,4 +1,3 @@
-import datetime
 import pymysql
 import pandas as pd
 
