@@ -6,7 +6,7 @@ db_data = {
     "host": "localhost",
     "user": "root",
     "password": "",
-    "database": "comercio",
+    "database": "db_comercio",
     "cursorclass": pymysql.cursors.DictCursor,
 }
 
@@ -37,7 +37,9 @@ def select_price_by_name(name):
     connective = pymysql.connect(**db_data)
     with connective as connective:
         with connective.cursor() as cursor:
-            cursor.execute("SELECT preco FROM produtos WHERE nome = %s", (name,))
+            cursor.execute(
+                "SELECT preco FROM produtos WHERE nome  like%s", (f"%{name}%",)
+            )
             df = pd.DataFrame(cursor.fetchall())
             return df
 
@@ -57,7 +59,8 @@ def select_product_by_name(name):
     with connective as connective:
         with connective.cursor() as cursor:
             cursor.execute(
-                "SELECT nome,preco,estoque FROM produtos WHERE nome = %s", (name,)
+                "SELECT nome,preco,estoque FROM produtos WHERE nome like%s",
+                (f"%{name}%",),
             )
             df = pd.DataFrame(cursor.fetchall(), columns=["nome", "preco", "estoque"])
             df.columns = ["Nome", "Preço", "Estoque"]
