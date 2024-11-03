@@ -16,7 +16,9 @@ st.set_page_config(
 @st.cache_data
 def autenticar_usuario(username, password):
     user = select_user(username, password)
-    log_red(user.get("username"), user.get("password"))
+    log_red(
+        f'[===] - User: {user.get("username")} [===] Password: {user.get("password")} - [===]'
+    )
     # Aqui você pode adicionar lógica de verificação com um banco de dados ou API
     if username == user.get("username") and password == user.get("password"):
         return True

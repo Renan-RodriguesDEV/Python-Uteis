@@ -9,7 +9,7 @@ from sqlalchemy import (
     DECIMAL,
 )
 from sqlalchemy.orm import sessionmaker, declarative_base
-
+from sqlalchemy.sql import func
 from .uteis import log_green
 
 
@@ -74,7 +74,7 @@ class Cliente_Produto(Base):
         Integer,
     )
     total = Column("total", DECIMAL(15, 2))
-    data = Column("data", TIMESTAMP, default=datetime.datetime.now)
+    data = Column("data", TIMESTAMP, server_default=func.now())
 
 
 def initialize_database():

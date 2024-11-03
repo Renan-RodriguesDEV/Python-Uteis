@@ -1,6 +1,7 @@
 [theme]
 
-base = "light"
+# "dark" or "light"
+base = "dark"
 
 # primaryColor = "#ff01f0"
 
