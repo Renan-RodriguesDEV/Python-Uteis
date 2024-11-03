@@ -29,24 +29,25 @@ CREATE TABLE IF NOT EXISTS cliente_produto (
     preco DECIMAL(15, 2) NOT NULL,
     quantidade INT NOT NULL,
     total decimal(15, 2) NOT NULL default 0,
+    data datetime NOT NULL default NOW(),
     PRIMARY KEY (id_cliente, id_produto),
     FOREIGN KEY (id_cliente) REFERENCES clientes(id),
     FOREIGN KEY (id_produto) REFERENCES produtos(id)
 );
 drop table cliente_produto;
 -- Trigger para atualizar o estoque de produtos quando a quantidade for alterada
-DELIMITER // CREATE TRIGGER atualiza_estoque_cliente_produto
-AFTER
-INSERT ON cliente_produto FOR EACH ROW BEGIN -- Atualiza o estoque do produto
-UPDATE produtos
-SET estoque = estoque - NEW.quantidade
-WHERE id = NEW.id_produto;
-END // DELIMITER;
-DELIMITER // create trigger atualiza_preco_total
-after
-insert on cliente_produto for each row begin
-update cliente_produto c
-set total = NEW.quantidade * NEW.preco
-where id_produto = NEW.id_produto
-    and id_cliente;
-end // DELIMITER;
+-- DELIMITER // CREATE TRIGGER atualiza_estoque_cliente_produto
+-- AFTER
+-- INSERT ON cliente_produto FOR EACH ROW BEGIN -- Atualiza o estoque do produto
+-- UPDATE produtos
+-- SET estoque = estoque - NEW.quantidade
+-- WHERE id = NEW.id_produto;
+-- END // DELIMITER;
+-- DELIMITER // create trigger atualiza_preco_total
+-- after
+-- insert on cliente_produto for each row begin
+-- update cliente_produto c
+-- set total = NEW.quantidade * NEW.preco
+-- where id_produto = NEW.id_produto
+--     and id_cliente;
+-- end // DELIMITER;
