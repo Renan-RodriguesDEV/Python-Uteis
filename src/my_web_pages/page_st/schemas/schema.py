@@ -89,7 +89,7 @@ def register_client(name, cpf, telefone, email):
             connective.commit()
             return True
 
-
+ 
 # Função para registrar um produto
 def register_product(name, price, count):
     connective = pymysql.connect(**db_data)

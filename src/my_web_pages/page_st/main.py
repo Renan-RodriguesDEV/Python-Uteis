@@ -1,6 +1,7 @@
 import streamlit as st
-
 from schemas import *
+
+initialize_database()
 
 st.set_page_config(
     page_title="Sistema de Vendas",
