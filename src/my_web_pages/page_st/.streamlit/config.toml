@@ -2,8 +2,8 @@
 
 base = "light"
 
-primaryColor = "#56ff01"
+# primaryColor = "#ff01f0"
 
-secondaryBackgroundColor = "#ff01f0"
+# secondaryBackgroundColor = "#7c7c7c"
 
 font = "sans serif"

@@ -1,17 +1,21 @@
+import datetime
 from sqlalchemy import (
     create_engine,
     Column,
     Integer,
     String,
-    DateTime,
+    TIMESTAMP,
     ForeignKey,
-    Double,
+    DECIMAL,
 )
 from sqlalchemy.orm import sessionmaker, declarative_base
 
+from .uteis import log_green
+
+
 user = "root"
 host = "localhost"
-database = "db_comercio"
+database = "teste_comercio"
 password = ""
 engine = create_engine(f"mysql+pymysql://{user}:{password}@{host}/{database}")
 Session = sessionmaker(bind=engine)
@@ -22,7 +26,7 @@ class Produto(Base):
     __tablename__ = "produtos"
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     nome = Column("nome", String(255), nullable=False)
-    preco = Column("preco", Double(10, 2), nullable=False)
+    preco = Column("preco", DECIMAL(15, 2), nullable=False)
     estoque = Column("estoque", Integer, nullable=False)
 
     def __init__(self, nome, preco, estoque):
@@ -64,16 +68,20 @@ class Cliente_Produto(Base):
     )  # Adiciona chave primária
     id_cliente = Column("id_cliente", ForeignKey("clientes.id"), nullable=False)
     id_produto = Column("id_produto", ForeignKey("produtos.id"), nullable=False)
-    preco = Column("preco", Double(10, 2))
+    preco = Column("preco", DECIMAL(15, 2))
     quantidade = Column(
         "quantidade",
         Integer,
     )
-    total = Column("total", Double(10, 2))
-    data = Column("data", DateTime())
+    total = Column("total", DECIMAL(15, 2))
+    data = Column("data", TIMESTAMP, default=datetime.datetime.now)
 
 
 def initialize_database():
     # Criação das tabelas no banco de dados
     Base.metadata.create_all(engine)
-    print(("### Initialization database sucessfully ###"))
+    log_green("[###] - Initialization database sucessfully - [###]")
+
+
+if __name__ == "__main__":
+    initialize_database()

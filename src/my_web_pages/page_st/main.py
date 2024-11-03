@@ -1,10 +1,11 @@
 import streamlit as st
 from schemas import *
 
+log_green("[==] Runnig server streamlit localhost [==]")
 initialize_database()
 
 st.set_page_config(
-    page_title="Sistema de Vendas",
+    page_title="Sistema de Gerenciamento de Vendas",
     page_icon=":moneybag:",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -15,7 +16,7 @@ st.set_page_config(
 @st.cache_data
 def autenticar_usuario(username, password):
     user = select_user(username, password)
-    print(user.get("username"), user.get("password"))
+    log_red(user.get("username"), user.get("password"))
     # Aqui você pode adicionar lógica de verificação com um banco de dados ou API
     if username == user.get("username") and password == user.get("password"):
         return True
