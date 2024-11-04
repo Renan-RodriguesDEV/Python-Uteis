@@ -39,8 +39,8 @@ def select_price_by_name(name):
             cursor.execute(
                 "SELECT preco FROM produtos WHERE nome  like%s", (f"%{name}%",)
             )
-            df = pd.DataFrame(cursor.fetchall())
-            return df
+            price = cursor.fetchone()
+            return price
 
 
 # Função para selecionar o cliente pelo nome

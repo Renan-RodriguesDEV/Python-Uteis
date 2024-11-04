@@ -45,7 +45,7 @@ def tela_login():
     password = st.text_input(
         "Senha",
         type="password",
-        max_chars=14,
+        max_chars=11,
         help="insira sua senha de usuario, clientes insiram o CPF cadastrado",
     )
     if username == "" or password == "":
@@ -61,17 +61,33 @@ def tela_login():
             st.error("Usuário ou senha incorretos")
 
 
+# Função para enviar feedback
+# TODO: Implementar a função de envio de feedback por email
+def send_feedback(feedback):
+    st.success(f"Feedback enviado com sucesso: {st.session_state['usuario']}")
+
+
 # Função para a homepage
 def homepage():
     st.title(f"Bem-vindo, {st.session_state['usuario']}!")
     x, y = st.columns([2, 1], gap="medium", vertical_alignment="top")
-    # Opções de navegação
-    x.text_area(
+
+    feedback = x.text_area(
         "Feedback do cliente",
         placeholder="Deixe seu feedback aqui",
         max_chars=255,
         height=150,  # Define a altura fixa para o text_area
     )
+    if x.button("Enviar Feedback", type="primary"):
+        send_feedback(feedback)
+    # Opções de navegação
+    if y.button(
+        "Buy",
+        use_container_width=True,
+        disabled=st.session_state["owner"],
+    ):
+        st.session_state["pagina"] = "realizar_compra"
+        st.rerun()
     if y.button(
         "Cadastro de Produtos",
         use_container_width=True,
@@ -211,10 +227,37 @@ def atualizar_divida():
     produto = st.selectbox("Selecione o produto", df_produtos)
     preco = select_price_by_name(produto)["preco"]
     quantidade = st.number_input("Quantidade", min_value=1, step=1)
+    st.write(f"Valor final: {preco * quantidade}")
     if st.button("Atualizar"):
         is_register = register_sale(cliente, produto, quantidade)
         if is_register:
-            st.success(f"Venda registrada com sucesso!")
+            st.success(f"Venda registrada com sucesso no valor de {preco}!")
+        else:
+            st.error("Erro ao registrar a venda")
+
+    if st.button("Voltar"):
+        st.session_state["pagina"] = "homepage"
+        st.rerun()
+
+
+# Função para realizar a compra
+def realizar_compra():
+    st.title("Realizar Compra")
+    # Simulação de consulta de dívida. Poderia ser ligado a um banco de dados.
+    df_produtos = select_all_produtos()
+    cliente = st.session_state["usuario"]
+    st.write(f"Cliente: {cliente}")
+    produto = st.selectbox("Selecione o produto", df_produtos)
+    preco = select_price_by_name(produto)["preco"]
+    quantidade = st.number_input("Quantidade", min_value=1, step=1)
+    st.write(
+        f"""<p style='text-align:right;'><b style='color:green;'>Produto:</b> {produto} <b style='color:green;'>Preço:</b> 💲{preco} <b style='color:green;'>Valor final:</b> 💲{preco*quantidade}</p>""",
+        unsafe_allow_html=True,
+    )
+    if st.button("Comprar", type="primary"):
+        is_register = register_sale(cliente, produto, quantidade)
+        if is_register:
+            st.success(f"Venda registrada com sucesso no valor de {preco*quantidade}!")
         else:
             st.error("Erro ao registrar a venda")
 
@@ -247,5 +290,7 @@ if st.session_state["autenticado"]:
         consulta_divida()
     elif st.session_state["pagina"] == "atualizar_divida":
         atualizar_divida()
+    elif st.session_state["pagina"] == "realizar_compra":
+        realizar_compra()
 else:
     tela_login()
