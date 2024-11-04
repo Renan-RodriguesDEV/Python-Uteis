@@ -14,31 +14,46 @@ st.set_page_config(
 
 # Função de autenticação simulada (exemplo simples)
 @st.cache_data
-def autenticar_usuario(username, password):
-    user = select_user(username, password)
-    log_red(
-        f'[===] - User: {user.get("username")} [===] Password: {user.get("password")} - [===]'
-    )
-    # Aqui você pode adicionar lógica de verificação com um banco de dados ou API
-    if username == user.get("username") and password == user.get("password"):
-        return True
+def autenticar_usuario(username, password, type_user):
+    if type_user == "Owner/Employee":
+        user = select_user(username, password)
+        log_red(
+            f'[===] - User: {user.get("username")} [===] Password: {user.get("password")} - [===]'
+        )
+        # Aqui você pode adicionar lógica de verificação com um banco de dados ou API
+        if username == user.get("username") and password == user.get("password"):
+            return True
+        return False
+    elif type_user == "Client":
+        user = select_user_client(username, password)
+        log_red(
+            f'[===] - User: {user.get("username")} [===] Password: {user.get("password")} - [===]'
+        )
+        # Aqui você pode adicionar lógica de verificação com um banco de dados ou API
+        if username == user.get("username") and password == user.get("password"):
+            return True
+        return False
     return False
 
 
 # Função para a tela de login
 def tela_login():
-    st.title("Login")
-    username = st.text_input("Usuário")
+    st.title("Faça seu Login para continuar")
+    tipo_user = st.selectbox("Usuario", ["Owner/Employee", "Client"])
+    log_blue(tipo_user)
+    username = st.text_input("Usuário", help="Insira seu nome de usuario")
     password = st.text_input(
         "Senha",
         type="password",
-        max_chars=6,
+        max_chars=14,
+        help="insira sua senha de usuario, clientes insiram o CPF cadastrado",
     )
     if username == "" or password == "":
         st.warning("Por favor, preencha os campos de usuário e senha")
     if st.button("Login", type="primary"):
-        if autenticar_usuario(username, password):
+        if autenticar_usuario(username, password, type_user=tipo_user):
             st.session_state["autenticado"] = True
+            st.session_state["owner"] = True if tipo_user == "Owner/Employee" else False
             st.session_state["usuario"] = username
             st.session_state["pagina"] = "homepage"  # Redireciona para a homepage
             st.rerun()
@@ -57,10 +72,18 @@ def homepage():
         max_chars=255,
         height=150,  # Define a altura fixa para o text_area
     )
-    if y.button("Cadastro de Produtos", use_container_width=True):
+    if y.button(
+        "Cadastro de Produtos",
+        use_container_width=True,
+        disabled=not st.session_state["owner"],
+    ):
         st.session_state["pagina"] = "cadastro_produto"
         st.rerun()
-    if y.button("Cadastro de Clientes", use_container_width=True):
+    if y.button(
+        "Cadastro de Clientes",
+        use_container_width=True,
+        disabled=not st.session_state["owner"],
+    ):
         st.session_state["pagina"] = "cadastro_cliente"
         st.rerun()
 
@@ -72,7 +95,11 @@ def homepage():
         st.session_state["pagina"] = "consulta_divida"
         st.rerun()
 
-    if y.button("Atualizar Dívida de Clientes", use_container_width=True):
+    if y.button(
+        "Atualizar Dívida de Clientes",
+        use_container_width=True,
+        disabled=not st.session_state["owner"],
+    ):
         st.session_state["pagina"] = "atualizar_divida"
         st.rerun()
 
@@ -138,18 +165,41 @@ def consulta_produto():
 
 # Função para a consulta de dívida de clientes
 def consulta_divida():
-    st.title("Consulta de Dívida de Clientes")
-    # Simulação de consulta de dívida. Poderia ser ligado a um banco de dados.
-    df_clientes = select_all_clientes()
+    if st.session_state["owner"]:
+        st.title("Consulta de Dívida de Clientes")
+        # Simulação de consulta de dívida. Poderia ser ligado a um banco de dados.
+        df_clientes = select_all_clientes()
 
-    cliente = st.selectbox("Selecione o cliente", df_clientes["nome"].to_list())
-    divida = select_debt_by_client(cliente)
-    st.write(f"Divida do cliente {cliente}: R$ {divida}")
-    if st.button("Consulta completa"):
-        st.table(select_all_sales_by_client(cliente))
-    if st.button("Voltar"):
-        st.session_state["pagina"] = "homepage"
-        st.rerun()
+        cliente = st.selectbox(
+            "Selecione o cliente",
+            df_clientes["nome"].to_list(),
+        )
+        divida = select_debt_by_client(cliente)
+        st.write(f"Divida do cliente {cliente}: R$ {divida}")
+        if st.button("Consulta completa"):
+            st.table(select_all_sales_by_client(cliente))
+        if st.button("Voltar"):
+            st.session_state["pagina"] = "homepage"
+            st.rerun()
+    else:
+        st.title("Consulta de Dívida de Clientes")
+
+        with st.form(key="consulta_form"):
+            cliente = st.text_input("Nome completo")
+            consultar = st.form_submit_button("Consultar")
+
+        if consultar:
+            divida = select_debt_by_client(cliente)
+            st.write(f"Divida do cliente {cliente}: R$ {divida if divida else 0.00}")
+            divida_total = select_all_sales_by_client(cliente)
+            if divida_total is not None:
+                st.table(divida_total)
+            else:
+                st.error("Nenhum cliente encontrado com esse nome")
+
+        if st.button("Voltar"):
+            st.session_state["pagina"] = "homepage"
+            st.rerun()
 
 
 def atualizar_divida():
@@ -179,7 +229,9 @@ if "autenticado" not in st.session_state:
 
 if "pagina" not in st.session_state:
     st.session_state["pagina"] = "login"  # Define a página inicial como login
-
+# Inicializa "owner" com False por padrão, caso ainda não tenha sido definido
+if "owner" not in st.session_state:
+    st.session_state["owner"] = False
 # Verifica se o usuário está autenticado
 if st.session_state["autenticado"]:
     # Navega entre as páginas com base no estado

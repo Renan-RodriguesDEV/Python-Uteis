@@ -89,7 +89,7 @@ def register_client(name, cpf, telefone, email):
             connective.commit()
             return True
 
- 
+
 # Função para registrar um produto
 def register_product(name, price, count):
     connective = pymysql.connect(**db_data)
@@ -186,6 +186,20 @@ def select_user(name, passwd):
             return {"username": "", "password": ""}
 
 
+def select_user_client(name, passwd):
+    connective = pymysql.connect(**db_data)
+    with connective as connective:
+        with connective.cursor() as cursor:
+            query = "SELECT * FROM clientes WHERE nome = %s AND cpf = %s"
+            cursor.execute(query, (name, passwd))
+            result = cursor.fetchone()
+            if result:
+                senha = result["cpf"]
+                usuario = result["nome"]
+                return {"username": usuario, "password": senha}
+            return {"username": "", "password": ""}
+
+
 def select_all_sales_by_client(cliente):
     connective = pymysql.connect(**db_data)
     with connective as connective:
@@ -199,7 +213,7 @@ def select_all_sales_by_client(cliente):
             """
             cursor.execute(query, (cliente,))
             data = cursor.fetchall()
-            return pd.DataFrame(data)
+            return pd.DataFrame(data) if data else None
 
 
 # Teste básico
