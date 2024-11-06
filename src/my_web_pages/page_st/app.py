@@ -1,3 +1,4 @@
+from pandas import DataFrame
 import streamlit as st
 from schemas import *
 
@@ -192,6 +193,19 @@ def consulta_produto():
             st.write(produto)
         else:
             st.error("Nenhum produto encontrado com esse nome")
+
+    @st.cache_data
+    def converter_df_to_excel(dataframe: DataFrame, filename):
+        dataframe.to_excel(f"{filename}.xlsx", index=False)
+        return f"{filename}.xlsx"
+
+    # TODO: Implementar download de arquivo Excel
+    # st.download_button(
+    #     "Dowloads produtos",
+    #     converter_df_to_excel(produtos, "produtos"),
+    #     "produtos.xlsx",
+    #     mime="application/",
+    # )
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
         st.rerun()
@@ -251,19 +265,28 @@ def atualizar_divida():
         quantidade = st.number_input("Quantidade", min_value=1, step=1)
         st.write(f"Valor final: {preco * quantidade}")
         if st.button("Atualizar"):
+
             is_register = register_sale(cliente, produto, quantidade)
             if is_register:
                 st.success(f"Venda registrada com sucesso no valor de {preco}!")
             else:
                 st.error("Erro ao registrar a venda")
     else:
-        value_pag = st.number_input("Digite o valor pago", min_value=0.0, step=0.01)
-        if st.button("Atualizar"):
-            log_green(f"Valor pago:{value_pag}")
-            is_pag = update_divida(cliente, value_pag)
+        divida_total = select_debt_by_client(cliente)
+        st.write(
+            f"**O cliente :blue[{cliente}] tem a divida total no valor: :green[R${divida_total}]**"
+        )
+
+        st.warning("Cuidado ao remover a divida, essa ação não pode ser desfeita")
+        if st.button(
+            "Zerar divida",
+            type="primary",
+            help="Atenção, essa ação não pode ser desfeita",
+        ):
+            is_pag = update_divida(cliente)
             if is_pag:
                 st.success(
-                    f"Pagamento registrado com sucesso no valor de {value_pag}! a conta atual está em R$ {is_pag}"
+                    f"Pagamento registrado com sucesso!! a conta atual está em R$ 0,00"
                 )
             else:
                 st.error("Erro ao registrar a pagamento")
@@ -295,7 +318,10 @@ def realizar_compra():
             link_paryment = payment(str(produto), float(preco), int(quantidade))
             log_blue(f"link para pagamento {link_paryment}")
             # Redireciona automaticamente
-            st.link_button("Ir para o pagamento", link_paryment)
+            st.page_link(
+                page=link_paryment, label=":green[Ir para o Pagamento]", icon="💸"
+            )
+
             st.success(f"Venda registrada com sucesso no valor de {preco*quantidade}!")
         except Exception as e:
             st.error("Erro ao registrar a venda")

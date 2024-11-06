@@ -3,10 +3,8 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-
-sdk = mercadopago.SDK(
-    os.getenv('ACESS_TOKEN')
-)
+access_token = os.getenv("ACESS_TOKEN")
+sdk = mercadopago.SDK(access_token)
 
 
 def payment(name_product: str, price: float, quantity: int):

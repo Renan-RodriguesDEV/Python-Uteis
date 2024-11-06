@@ -45,13 +45,13 @@ def select_price_by_name(name):
 
 
 # Função para selecionar o cliente pelo nome
-def select_cliente_by_name(name):
+def select_cliente_id_by_name(name):
     connective = pymysql.connect(**db_data)
     with connective as connective:
         with connective.cursor() as cursor:
-            cursor.execute("SELECT nome FROM clientes WHERE nome = %s", (name,))
-            df = pd.DataFrame(cursor.fetchall())
-            return df
+            cursor.execute("SELECT id FROM clientes WHERE nome = %s", (name,))
+            result = cursor.fetchall()
+            return result[0]["id"] if result else None
 
 
 def select_product_by_name(name):
@@ -157,19 +157,17 @@ def register_sale(cliente, produto, quantidade: int = 1):
             return True if rows > 0 else False
 
 
-def update_divida(cliente, value_pag):
-    result = select_debt_by_client(cliente)
-    print("antigo", result)
+def update_divida(cliente):
+    result = select_cliente_id_by_name(cliente)
     if result:
-        value = Decimal(result) - Decimal(value_pag)
-        print("Novo valor", value)
         connective = pymysql.connect(**db_data)
         with connective as connective:
             with connective.cursor() as cursor:
-                query = "UPDATE cliente_produto SET total = %s WHERE id_cliente = %s"
-                cursor.execute(query, (value, cliente))
+                query = "DELETE FROM cliente_produto WHERE id_cliente = %s"
+                cursor.execute(query, (cliente))
                 # connective.commit()
-                return value
+                return True
+    return False
 
 
 # Função para consultar a dívida do cliente
