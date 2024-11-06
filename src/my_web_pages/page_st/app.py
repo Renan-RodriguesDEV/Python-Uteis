@@ -127,16 +127,25 @@ def homepage():
 
 # Função para o cadastro de produtos
 def cadastro_produto():
-    st.title("Cadastro de Produtos")
-    nome = st.text_input("Nome do Produto")
-    preco = st.number_input("Preço", min_value=0.0, step=0.01)
-    qtde = st.number_input("Quantidade", min_value=0, step=1)
+    st.title(":green[Cadastro]/:red[Deleção] de Produtos")
+    selection = st.selectbox("Selecione a ação", ["Cadastro", "Deleção"])
+    if selection == "Cadastro":
+        nome = st.text_input("Nome do Produto")
+        preco = st.number_input("Preço", min_value=0.0, step=0.01)
+        qtde = st.number_input("Quantidade", min_value=0, step=1)
 
-    if st.button("Cadastrar Produto", type="primary"):
-        # preco = preco.replace(",", ".")
-        register_product(nome, float(preco), int(qtde))
-        st.success(f"Produto {nome} cadastrado com sucesso!")
-
+        if st.button("Cadastrar Produto", type="primary"):
+            register_product(nome, float(preco), int(qtde))
+            st.success(f"Produto {nome} cadastrado com sucesso!")
+    else:
+        produto = st.selectbox("Selecione o produto", select_all_produtos())
+        log_green(produto)
+        if st.button("Deletar Produto", type="primary"):
+            deletion = delete_product(produto)
+            if deletion:
+                st.success(f"Produto {produto} deletado com sucesso!")
+            else:
+                st.error(f"Não foi possivel apagar o produto")
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
         st.rerun()
@@ -144,17 +153,27 @@ def cadastro_produto():
 
 # Função para o cadastro de clientes
 def cadastro_cliente():
-    st.title("Cadastro de Clientes")
-    nome = st.text_input("Nome do Cliente")
-    cpf = st.text_input("CPF do Cliente", placeholder="123.456.789-00")
-    email = st.text_input("Email do Cliente", placeholder="kriptovenio@gmail.com")
-    telefone = st.text_input("Telefone do Cliente")
+    st.title(":green[Cadastro]/:red[Deleção] de Clientes")
+    action = st.selectbox("Selecione a ação", ["Cadastro", "Deleção"])
+    if action == "Cadastro":
+        nome = st.text_input("Nome do Cliente")
+        cpf = st.text_input("CPF do Cliente", placeholder="123.456.789-00")
+        email = st.text_input("Email do Cliente", placeholder="kriptovenio@gmail.com")
+        telefone = st.text_input("Telefone do Cliente")
 
-    if st.button("Cadastrar Cliente", type="primary"):
-        cpf = cpf.replace(".", "").replace("-", "")
-        register_client(nome, cpf, telefone, email)
-        st.success(f"Cliente {nome} cadastrado com sucesso!")
-
+        if st.button("Cadastrar Cliente", type="primary"):
+            cpf = cpf.replace(".", "").replace("-", "")
+            register_client(nome, cpf, telefone, email)
+            st.success(f"Cliente {nome} cadastrado com sucesso!")
+    else:
+        cliente = st.selectbox("Selecione o cliente", select_all_clientes())
+        if st.button("Deletar Cliente", type="primary"):
+            log_green(f"Cliente a deletar: {cliente}")
+            deletion = delete_client(cliente)
+            if deletion:
+                st.success(f"Cliente {cliente} deletado com sucesso!")
+            else:
+                st.error(f"Não foi possivel apagar o cliente")
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
         st.rerun()
@@ -173,7 +192,6 @@ def consulta_produto():
             st.write(produto)
         else:
             st.error("Nenhum produto encontrado com esse nome")
-
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
         st.rerun()
@@ -201,7 +219,9 @@ def consulta_divida():
         st.title("Consulta de Dívida de Clientes")
 
         with st.form(key="consulta_form"):
-            cliente = st.text_input("Nome completo")
+            cliente = st.text_input(
+                "Nome completo", help="Digite o nome completo como no cadastro"
+            )
             consultar = st.form_submit_button("Consultar")
 
         if consultar:
@@ -224,16 +244,29 @@ def atualizar_divida():
     df_clientes = select_all_clientes()
     df_produtos = select_all_produtos()
     cliente = st.selectbox("Selecione o cliente", df_clientes["nome"].to_list())
-    produto = st.selectbox("Selecione o produto", df_produtos)
-    preco = select_price_by_name(produto)["preco"]
-    quantidade = st.number_input("Quantidade", min_value=1, step=1)
-    st.write(f"Valor final: {preco * quantidade}")
-    if st.button("Atualizar"):
-        is_register = register_sale(cliente, produto, quantidade)
-        if is_register:
-            st.success(f"Venda registrada com sucesso no valor de {preco}!")
-        else:
-            st.error("Erro ao registrar a venda")
+    action = st.selectbox("Adicionar/Remover divida", ["Adicionar", "Remover"])
+    if action == "Adicionar":
+        produto = st.selectbox("Selecione o produto", df_produtos)
+        preco = select_price_by_name(produto)["preco"]
+        quantidade = st.number_input("Quantidade", min_value=1, step=1)
+        st.write(f"Valor final: {preco * quantidade}")
+        if st.button("Atualizar"):
+            is_register = register_sale(cliente, produto, quantidade)
+            if is_register:
+                st.success(f"Venda registrada com sucesso no valor de {preco}!")
+            else:
+                st.error("Erro ao registrar a venda")
+    else:
+        value_pag = st.number_input("Digite o valor pago", min_value=0.0, step=0.01)
+        if st.button("Atualizar"):
+            log_green(f"Valor pago:{value_pag}")
+            is_pag = update_divida(cliente, value_pag)
+            if is_pag:
+                st.success(
+                    f"Pagamento registrado com sucesso no valor de {value_pag}! a conta atual está em R$ {is_pag}"
+                )
+            else:
+                st.error("Erro ao registrar a pagamento")
 
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
@@ -250,15 +283,21 @@ def realizar_compra():
     produto = st.selectbox("Selecione o produto", df_produtos)
     preco = select_price_by_name(produto)["preco"]
     quantidade = st.number_input("Quantidade", min_value=1, step=1)
-    st.write(
-        f"""<p style='text-align:right;'><b style='color:green;'>Produto:</b> {produto} <b style='color:green;'>Preço:</b> 💲{preco} <b style='color:green;'>Valor final:</b> 💲{preco*quantidade}</p>""",
+    st.markdown(
+        f"""
+        \n:green[PRODUTO]: **{produto}** 
+        \n:green[PREÇO]: **`R$`{preco}** 
+        \n:green[VALOR FINAL]: **`R$`{preco*quantidade}**""",
         unsafe_allow_html=True,
     )
     if st.button("Comprar", type="primary"):
-        is_register = register_sale(cliente, produto, quantidade)
-        if is_register:
+        try:
+            link_paryment = payment(str(produto), float(preco), int(quantidade))
+            log_blue(f"link para pagamento {link_paryment}")
+            # Redireciona automaticamente
+            st.link_button("Ir para o pagamento", link_paryment)
             st.success(f"Venda registrada com sucesso no valor de {preco*quantidade}!")
-        else:
+        except Exception as e:
             st.error("Erro ao registrar a venda")
 
     if st.button("Voltar"):

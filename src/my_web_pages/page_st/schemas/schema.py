@@ -1,3 +1,4 @@
+from decimal import Decimal
 import pymysql
 import pandas as pd
 
@@ -156,6 +157,21 @@ def register_sale(cliente, produto, quantidade: int = 1):
             return True if rows > 0 else False
 
 
+def update_divida(cliente, value_pag):
+    result = select_debt_by_client(cliente)
+    print("antigo", result)
+    if result:
+        value = Decimal(result) - Decimal(value_pag)
+        print("Novo valor", value)
+        connective = pymysql.connect(**db_data)
+        with connective as connective:
+            with connective.cursor() as cursor:
+                query = "UPDATE cliente_produto SET total = %s WHERE id_cliente = %s"
+                cursor.execute(query, (value, cliente))
+                # connective.commit()
+                return value
+
+
 # Função para consultar a dívida do cliente
 def select_debt_by_client(cliente):
     connective = pymysql.connect(**db_data)
@@ -214,6 +230,32 @@ def select_all_sales_by_client(cliente):
             cursor.execute(query, (cliente,))
             data = cursor.fetchall()
             return pd.DataFrame(data) if data else None
+
+
+def delete_product(name):
+    connective = pymysql.connect(**db_data)
+    with connective as connective:
+        with connective.cursor() as cursor:
+            try:
+                query = "DELETE FROM produtos WHERE nome = %s"
+                cursor.execute(query, (name,))
+                connective.commit()
+                return True
+            except Exception as e:
+                return False
+
+
+def delete_client(cliente):
+    connective = pymysql.connect(**db_data)
+    with connective as connective:
+        with connective.cursor() as cursor:
+            try:
+                query = "DELETE FROM clientes WHERE nome = %s"
+                cursor.execute(query, (cliente,))
+                connective.commit()
+                return True
+            except Exception as e:
+                return False
 
 
 # Teste básico
