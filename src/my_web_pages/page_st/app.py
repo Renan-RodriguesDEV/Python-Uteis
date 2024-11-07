@@ -1,3 +1,4 @@
+import io
 from pandas import DataFrame
 import streamlit as st
 from schemas import *
@@ -5,12 +6,21 @@ from schemas import *
 log_green("[==] Runnig server streamlit localhost [==]")
 initialize_database()
 
+
+def load_styles():
+    """Carrega o arquivo css para estilizaçção de componentes"""
+    with open("style/style.css", "r") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+
 st.set_page_config(
     page_title="Sistema de Gerenciamento de Vendas",
     page_icon=":moneybag:",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+# load_styles()
 
 
 # Função de autenticação simulada (exemplo simples)
@@ -63,8 +73,9 @@ def tela_login():
 
 
 # Função para enviar feedback
-# TODO: Implementar a função de envio de feedback por email
+@st.cache_data
 def send_feedback(feedback):
+    send_feedback_email(str(st.session_state["usuario"]), feedback)
     st.success(f"Feedback enviado com sucesso: {st.session_state['usuario']}")
 
 
@@ -128,7 +139,7 @@ def homepage():
 
 # Função para o cadastro de produtos
 def cadastro_produto():
-    st.title(":green[Cadastro]/:red[Deleção] de Produtos")
+    st.title(":gray[Cadastro]/:red[Deleção] de Produtos")
     selection = st.selectbox("Selecione a ação", ["Cadastro", "Deleção"])
     if selection == "Cadastro":
         nome = st.text_input("Nome do Produto")
@@ -154,7 +165,7 @@ def cadastro_produto():
 
 # Função para o cadastro de clientes
 def cadastro_cliente():
-    st.title(":green[Cadastro]/:red[Deleção] de Clientes")
+    st.title(":gray[Cadastro]/:red[Deleção] de Clientes")
     action = st.selectbox("Selecione a ação", ["Cadastro", "Deleção"])
     if action == "Cadastro":
         nome = st.text_input("Nome do Cliente")
@@ -188,24 +199,28 @@ def consulta_produto():
     st.table(produtos)
     nome = st.text_input("Digite o nome do produto para consultar")
     produto = select_product_by_name(nome)
-    if st.button("Consultar", type="primary"):
-        if produto.shape[0] > 0:
-            st.write(produto)
-        else:
-            st.error("Nenhum produto encontrado com esse nome")
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if st.button("Consultar", type="primary"):
+            if produto.shape[0] > 0:
+                st.write(produto)
+            else:
+                st.error("Nenhum produto encontrado com esse nome")
 
     @st.cache_data
-    def converter_df_to_excel(dataframe: DataFrame, filename):
-        dataframe.to_excel(f"{filename}.xlsx", index=False)
-        return f"{filename}.xlsx"
+    def converter_df_to_excel(dataframe: DataFrame):
+        buffer = io.BytesIO()
+        dataframe.to_excel(buffer, index=False)
+        buffer.seek(0)
+        return buffer
 
-    # TODO: Implementar download de arquivo Excel
-    # st.download_button(
-    #     "Dowloads produtos",
-    #     converter_df_to_excel(produtos, "produtos"),
-    #     "produtos.xlsx",
-    #     mime="application/",
-    # )
+    with col2:
+        st.download_button(
+            "Download produtos",
+            data=converter_df_to_excel(produtos),
+            file_name="produtos.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
     if st.button("Voltar"):
         st.session_state["pagina"] = "homepage"
         st.rerun()
@@ -274,7 +289,7 @@ def atualizar_divida():
     else:
         divida_total = select_debt_by_client(cliente)
         st.write(
-            f"**O cliente :blue[{cliente}] tem a divida total no valor: :green[R${divida_total}]**"
+            f"**O cliente :blue[{cliente}] tem a divida total no valor: :gray[R${divida_total}]**"
         )
 
         st.warning("Cuidado ao remover a divida, essa ação não pode ser desfeita")
