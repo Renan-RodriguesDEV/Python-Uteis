@@ -164,8 +164,8 @@ def update_divida(cliente):
         with connective as connective:
             with connective.cursor() as cursor:
                 query = "DELETE FROM cliente_produto WHERE id_cliente = %s"
-                cursor.execute(query, (cliente))
-                # connective.commit()
+                cursor.execute(query, (result))
+                connective.commit()
                 return True
     return False
 

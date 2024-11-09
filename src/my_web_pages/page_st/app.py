@@ -228,6 +228,14 @@ def consulta_produto():
 
 # Função para a consulta de dívida de clientes
 def consulta_divida():
+
+    @st.cache_data
+    def converter_df_to_excel(dataframe: DataFrame):
+        buffer = io.BytesIO()
+        dataframe.to_excel(buffer, index=False)
+        buffer.seek(0)
+        return buffer
+
     if st.session_state["owner"]:
         st.title("Consulta de Dívida de Clientes")
         # Simulação de consulta de dívida. Poderia ser ligado a um banco de dados.
@@ -238,9 +246,16 @@ def consulta_divida():
             df_clientes["nome"].to_list(),
         )
         divida = select_debt_by_client(cliente)
-        st.write(f"Divida do cliente {cliente}: R$ {divida}")
+        st.write(f"Divida do cliente {cliente}: R$ {divida if divida else 0.00}")
+
         if st.button("Consulta completa"):
             st.table(select_all_sales_by_client(cliente))
+        st.download_button(
+            label="Download divida",
+            data=converter_df_to_excel(select_all_sales_by_client(cliente)),
+            file_name="divida.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
         if st.button("Voltar"):
             st.session_state["pagina"] = "homepage"
             st.rerun()
@@ -259,6 +274,12 @@ def consulta_divida():
             divida_total = select_all_sales_by_client(cliente)
             if divida_total is not None:
                 st.table(divida_total)
+                st.download_button(
+                    label="Download divida",
+                    data=converter_df_to_excel(select_all_sales_by_client(cliente)),
+                    file_name="divida.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                )
             else:
                 st.error("Nenhum cliente encontrado com esse nome")
 
@@ -278,12 +299,17 @@ def atualizar_divida():
         produto = st.selectbox("Selecione o produto", df_produtos)
         preco = select_price_by_name(produto)["preco"]
         quantidade = st.number_input("Quantidade", min_value=1, step=1)
-        st.write(f"Valor final: {preco * quantidade}")
+        st.markdown(
+            f"<span style='font-size:30px; text-decoration:underline; font-family:JetBrains mono'>Valor final: :green[${preco * quantidade}]</span>",
+            unsafe_allow_html=True,
+        )
         if st.button("Atualizar"):
 
             is_register = register_sale(cliente, produto, quantidade)
             if is_register:
-                st.success(f"Venda registrada com sucesso no valor de {preco}!")
+                st.success(
+                    f"Venda registrada com sucesso no valor de R${preco*quantidade}!"
+                )
             else:
                 st.error("Erro ao registrar a venda")
     else:
