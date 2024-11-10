@@ -171,7 +171,7 @@ def cadastro_cliente():
     if action == "Cadastro":
         nome = st.text_input("Nome do Cliente")
         cpf = st.text_input("CPF do Cliente", placeholder="123.456.789-00")
-        email = st.text_input("Email do Cliente", placeholder="kriptovenio@gmail.com")
+        email = st.text_input("Email do Cliente", placeholder="darkside@gmail.com")
         telefone = st.text_input("Telefone do Cliente")
 
         if st.button("Cadastrar Cliente", type="primary"):
@@ -247,15 +247,20 @@ def consulta_divida():
             df_clientes["nome"].to_list(),
         )
         divida = select_debt_by_client(cliente)
-        st.write(f"Divida do cliente {cliente}: R$ {divida if divida else 0.00}")
+        st.subheader(f"Divida do cliente :gray[{cliente}]", divider="red")
+        st.write(
+            f"""<p style="font-size:30px;">Valor atual: <span style="text-decoration:underline; color:green; font-weight:bold;">R$ {divida if divida else 0.00}</span></p>""",
+            unsafe_allow_html=True,
+        )
 
-        if st.button("Consulta completa"):
+        if st.button("Consulta completa", type="primary"):
             st.table(select_all_sales_by_client(cliente))
         st.download_button(
             label="Download divida",
             data=converter_df_to_excel(select_all_sales_by_client(cliente)),
             file_name="divida.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            type="primary",
         )
         if st.button("Voltar"):
             st.session_state["pagina"] = "homepage"
