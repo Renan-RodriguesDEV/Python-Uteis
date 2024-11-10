@@ -81,14 +81,15 @@ def send_feedback(feedback):
 
 # Função para a homepage
 def homepage():
-    st.title(f"Bem-vindo, {st.session_state['usuario']}!")
+    st.title(f"Bem-vindo, :gray[{st.session_state['usuario']}!]")
     x, y = st.columns([2, 1], gap="medium", vertical_alignment="top")
 
     feedback = x.text_area(
         "Feedback do cliente",
         placeholder="Deixe seu feedback aqui",
         max_chars=255,
-        height=150,  # Define a altura fixa para o text_area
+        height=280,  # Define a altura fixa para o text_area
+        help="O feedback é importante para melhorar a experiência do usuário, todos os feedbacks serão enviados para o email do proprietário",
     )
     if x.button("Enviar Feedback", type="primary"):
         send_feedback(feedback)
