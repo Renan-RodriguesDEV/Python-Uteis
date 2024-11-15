@@ -77,6 +77,19 @@ class Cliente_Produto(Base):
     data = Column("data", TIMESTAMP, server_default=func.now())
 
 
+class Divida(Base):
+    __tablename__ = "dividas"
+    id = Column("id", Integer, primary_key=True, autoincrement=True)
+    id_cliente = Column("id_cliente", ForeignKey("clientes.id"), nullable=False)
+    valor = Column("valor", DECIMAL(15, 2), nullable=False)
+    data_modificacao = Column("data_modificacao", TIMESTAMP, server_default=func.now())
+
+    def __init__(self, cliente, valor):
+        self.id_cliente = cliente.id
+        self.valor = valor
+        self.data_modificacao = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
 def initialize_database():
     # Criação das tabelas no banco de dados
     Base.metadata.create_all(engine)
@@ -85,3 +98,16 @@ def initialize_database():
 
 if __name__ == "__main__":
     initialize_database()
+
+    c = Divida(
+        "Renan Rodrigues", "44455566677", "19999999999", "renanrodrigues@gmail.com"
+    )
+
+    sessao = Session()
+    sessao.add(c)
+
+    # sessao.commit()
+
+    cliente = sessao.query(Cliente).filter(Cliente.nome == "Renan Rodrigues").first()
+
+    print(cliente.nome)
