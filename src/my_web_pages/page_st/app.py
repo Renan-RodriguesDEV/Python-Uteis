@@ -272,6 +272,12 @@ def consulta_divida():
             cliente = st.text_input(
                 "Nome completo", help="Digite o nome completo como no cadastro"
             )
+            cpf = st.text_input(
+                "CPF",
+                help="Digite seu cpf completo como no cadastro, sem caracteres",
+                max_chars=11,
+                placeholder="123.456.789-00",
+            )
             consultar = st.form_submit_button("Consultar")
 
         if consultar:
