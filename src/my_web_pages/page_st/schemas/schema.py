@@ -171,17 +171,26 @@ def update_divida(cliente):
 
 
 # Função para consultar a dívida do cliente
-def select_debt_by_client(cliente):
+def select_debt_by_client(cliente, cpf=None):
     connective = pymysql.connect(**db_data)
     with connective as connective:
         with connective.cursor() as cursor:
-            query = """
+            if cpf:
+                query = """
+                    SELECT c.nome, SUM(cp.total) AS divida_total
+                    FROM cliente_produto cp 
+                    JOIN clientes c ON cp.id_cliente = c.id
+                    WHERE c.nome = %s AND c.cpf = %s
+                    """
+                cursor.execute(query, (cliente, cpf))
+            else:
+                query = """
                 SELECT c.nome, SUM(cp.total) AS divida_total
                 FROM cliente_produto cp 
                 JOIN clientes c ON cp.id_cliente = c.id
                 WHERE c.nome = %s
-            """
-            cursor.execute(query, (cliente,))
+                """
+                cursor.execute(query, (cliente,))
             data = cursor.fetchall()
             return data[0].get("divida_total") if data else 0.00
 

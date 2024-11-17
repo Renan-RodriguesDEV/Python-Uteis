@@ -281,7 +281,7 @@ def consulta_divida():
             consultar = st.form_submit_button("Consultar")
 
         if consultar:
-            divida = select_debt_by_client(cliente)
+            divida = select_debt_by_client(cliente, cpf)
             st.write(f"Divida do cliente {cliente}: R$ {divida if divida else 0.00}")
             divida_total = select_all_sales_by_client(cliente)
             if divida_total is not None:
@@ -362,7 +362,7 @@ def realizar_compra():
     st.markdown(
         f"""
         \n:green[PRODUTO]: **{produto}** 
-        \n:green[PREÇO]: **`R$`{preco}** 
+        \n:green[PREÇO UNITÁRIO]: **`R$`{preco}** 
         \n:green[VALOR FINAL]: **`R$`{preco*quantidade}**""",
         unsafe_allow_html=True,
     )
