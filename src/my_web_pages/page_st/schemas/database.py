@@ -15,7 +15,7 @@ from .uteis import log_green
 
 user = "root"
 host = "localhost"
-database = "teste_comercio"
+database = "db_comercio"
 password = ""
 engine = create_engine(f"mysql+pymysql://{user}:{password}@{host}/{database}")
 Session = sessionmaker(bind=engine)
@@ -82,6 +82,7 @@ class Divida(Base):
     id = Column("id", Integer, primary_key=True, autoincrement=True)
     id_cliente = Column("id_cliente", ForeignKey("clientes.id"), nullable=False)
     valor = Column("valor", DECIMAL(15, 2), nullable=False)
+    pago = Column("pago", DECIMAL(15, 2), nullable=False, default=0)
     data_modificacao = Column("data_modificacao", TIMESTAMP, server_default=func.now())
 
     def __init__(self, cliente, valor):

@@ -232,10 +232,14 @@ def consulta_divida():
 
     @st.cache_data
     def converter_df_to_excel(dataframe: DataFrame):
-        buffer = io.BytesIO()
-        dataframe.to_excel(buffer, index=False)
-        buffer.seek(0)
-        return buffer
+        try:
+            buffer = io.BytesIO()
+            dataframe.to_excel(buffer, index=False)
+            buffer.seek(0)
+            return buffer
+        except Exception as e:
+            st.warning(f"Não há cliente e produtos existentes na base de dados")
+            pass
 
     if st.session_state["owner"]:
         st.title("Consulta de Dívida de Clientes")
@@ -255,13 +259,17 @@ def consulta_divida():
 
         if st.button("Consulta completa", type="primary"):
             st.table(select_all_sales_by_client(cliente))
-        st.download_button(
-            label="Download divida",
-            data=converter_df_to_excel(select_all_sales_by_client(cliente)),
-            file_name="divida.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            type="primary",
-        )
+        try:
+            st.download_button(
+                label="Download divida",
+                data=converter_df_to_excel(select_all_sales_by_client(cliente)),
+                file_name="divida.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                type="primary",
+            )
+        except Exception as e:
+            st.button(f"Dowload divida", disabled=True)
+            pass
         if st.button("Voltar"):
             st.session_state["pagina"] = "homepage"
             st.rerun()
@@ -309,10 +317,15 @@ def atualizar_divida():
     action = st.selectbox("Adicionar/Remover divida", ["Adicionar", "Remover"])
     if action == "Adicionar":
         produto = st.selectbox("Selecione o produto", df_produtos)
-        preco = select_price_by_name(produto)["preco"]
+        preco = None
+        try:
+            preco = select_price_by_name(produto)["preco"]
+        except Exception as e:
+            st.warning("Produto não encontrado")
+            pass
         quantidade = st.number_input("Quantidade", min_value=1, step=1)
         st.markdown(
-            f"<span style='font-size:30px; text-decoration:underline; font-family:JetBrains mono'>Valor final: :green[${preco * quantidade}]</span>",
+            f"<span style='font-size:30px; text-decoration:underline; font-family:JetBrains mono'>Valor final: :green[${preco * quantidade if (preco and quantidade)!=None else 0}]</span>",
             unsafe_allow_html=True,
         )
         if st.button("Atualizar"):
