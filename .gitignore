@@ -2,3 +2,5 @@ configs/
 .idea
 __pycache__
 .env
+venv
+sessao.json
