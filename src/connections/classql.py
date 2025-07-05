@@ -4,7 +4,6 @@ from mysql.connector.connection import MySQLConnection
 
 
 class ClassConnection(MySQLConnection):
-
     _host = "localhost"
     _user = "root"
     _database = ""

@@ -11,10 +11,8 @@ from src.configs.creds_my import user, senha, enviar_para
 def createEmailMsg(from_msg, to_msg, password, body, attachment_path):
     msg = MIMEMultipart()
 
-    msg["Subject"] = (
-        f'Relatorio semanal - Music Bot\
-    {dt.date.today().strftime("%d/%m/%Y")}'
-    )
+    msg["Subject"] = f"Relatorio semanal - Music Bot\
+    {dt.date.today().strftime('%d/%m/%Y')}"
 
     msg["From"] = from_msg
 

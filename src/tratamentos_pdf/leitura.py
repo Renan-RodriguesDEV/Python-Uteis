@@ -2,10 +2,10 @@
 import PyPDF2
 
 # Caminho do arquivo PDF
-caminho_do_pdf = r'C:\Users\renan\OneDrive\Documentos\Python Scripts\lerPDF\etica.pdf'
+caminho_do_pdf = r"C:\Users\renan\OneDrive\Documentos\Python Scripts\lerPDF\etica.pdf"
 
 # Abrir o arquivo PDF em modo de leitura binária ('rb')
-with open(caminho_do_pdf, 'rb') as arquivo_pdf:
+with open(caminho_do_pdf, "rb") as arquivo_pdf:
     # Criar um objeto leitor de PDF
     leitor_pdf = PyPDF2.PdfReader(arquivo_pdf)
 

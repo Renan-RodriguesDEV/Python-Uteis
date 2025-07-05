@@ -35,7 +35,7 @@ def fetch_artist(artist, target_videos_count=10):
         if len(lista_de_videos) > 0:
             views = []
             for i, video in enumerate(lista_de_videos):
-                x = f"#main-content-others_homepage > div > div.css-833rgq-DivShareLayoutMain.ee7zj8d4 > div.css-1qb12g8-DivThreeColumnContainer.eegew6e2 > div > div:nth-child({i+1}) > div > div > div > a > div > div.css-11u47i-DivCardFooter.e148ts220 > strong"
+                x = f"#main-content-others_homepage > div > div.css-833rgq-DivShareLayoutMain.ee7zj8d4 > div.css-1qb12g8-DivThreeColumnContainer.eegew6e2 > div > div:nth-child({i + 1}) > div > div > div > a > div > div.css-11u47i-DivCardFooter.e148ts220 > strong"
 
                 text = pg.locator(
                     x,

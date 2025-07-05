@@ -4,7 +4,6 @@ import mysql.connector.cursor
 
 
 class Cnx:
-
     _host = "localhost"
     _user = "root"
     _database = ""
