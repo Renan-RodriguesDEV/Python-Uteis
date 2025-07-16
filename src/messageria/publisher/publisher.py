@@ -2,6 +2,7 @@ import json
 
 import pika
 
+
 # criando a classe PublisherMessaging que será responsável por publicar mensagens
 class PublisherMessaging:
     def __init__(
