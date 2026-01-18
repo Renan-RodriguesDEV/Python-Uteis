@@ -13,6 +13,7 @@ src/
 ├── apis/                    # Integrações com APIs externas
 │   ├── whatsapp/           # Integração WhatsApp (Twilio e Meta)
 │   └── tests/              # Testes de APIs (TikTok, Google Sheets)
+├── configs/                 # Configurações e credenciais (não versionado)
 ├── connections/             # Conexões com bancos de dados
 ├── emails/                  # Envio e leitura de emails
 ├── gerador_contratos/       # Gerador de contratos em DOCX
@@ -201,7 +202,7 @@ DB_NAME=nome_banco
   ```bash
   playwright install
   ```
-- **Selenium**: WebDriver Manager já incluído nas dependências
+- **Selenium**: Utiliza WebDriver Manager (incluído nas dependências) para gerenciamento automático de drivers
 - **Tesseract OCR**: Necessário para OCR (instalação separada)
   - Windows: [Tesseract Installer](https://github.com/UB-Mannheim/tesseract/wiki)
   - Linux: `sudo apt-get install tesseract-ocr`
@@ -228,7 +229,10 @@ Contribuições são bem-vindas! Sinta-se à vontade para:
 ## 📝 Notas
 
 - **Segurança**: Nunca commite arquivos `.env` ou credenciais sensíveis
-- **Paths**: Alguns scripts contêm caminhos absolutos que precisam ser ajustados para seu ambiente
+- **Caminhos Absolutos**: Alguns scripts contêm caminhos do Windows (ex: `C:/Users/...`) que precisam ser ajustados. Procure por strings com caminhos de arquivo nos scripts antes de executá-los, especialmente em:
+  - `src/emails/mailSenderSMTP.py`
+  - `src/tratamentos_pdf/leitura.py`
+  - Scripts de testes e exemplos
 - **Configurações**: Revise as configurações antes de executar scripts de produção
 
 ## 📄 Licença
