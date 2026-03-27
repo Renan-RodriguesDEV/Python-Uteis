@@ -11,8 +11,8 @@ class PublisherMessaging:
         port=5672,  # porta de conexão do RabbitMQ
         username="guest",  # usuário para autenticação
         password="guest",  # senha para autenticação
-        routing_key="",  # chave de roteamento para direcionamento da mensagem
-        exchange="data_exchange",  # exchange onde as mensagens serão publicadas
+        routing_key="default_queue",  # chave de roteamento para direcionamento da mensagem (queue)
+        exchange="",  # exchange onde as mensagens serão publicadas
     ):
         self.__host = host  # armazena o endereço do servidor
         self.__port = port  # armazena a porta de conexão
@@ -37,8 +37,11 @@ class PublisherMessaging:
         conn_parameters = pika.ConnectionParameters(
             host=self.__host, port=self.__port, credentials=self.__credentials
         )
+        channel = pika.BlockingConnection(conn_parameters).channel()
+        # Adicione esta linha para garantir que a fila exista antes de publicar
+        channel.queue_declare(queue=self.__routing_key, durable=True)
         # Retorna um canal de comunicação com o RabbitMQ
-        return pika.BlockingConnection(conn_parameters).channel()
+        return channel
 
     def publish(self, body: dict):
         """Publicando uma mensagem no RabbitMQ."""
@@ -48,3 +51,7 @@ class PublisherMessaging:
             body=json.dumps(body),  # converte o dicionário para JSON
             properties=self.__properties,  # propriedades da mensagem
         )
+
+    def close(self):
+        """Fechando a conexão com o RabbitMQ."""
+        self.__channel.close()

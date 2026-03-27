@@ -13,12 +13,13 @@ class CustomerMessaging:
 
     def __init__(
         self,
-        queue,
         callback,
+        queue="default_queue",
         host="localhost",
         port=5672,
         username="guest",
         password="guest",
+        auto_ack=False,
     ):
         """
         Inicializa a instância CustomerMessaging.
@@ -41,7 +42,9 @@ class CustomerMessaging:
 
         # Cria credenciais de autenticação para conexão RabbitMQ
         self.__credentials = pika.PlainCredentials(username=username, password=password)
-
+        self.auto_ack = (
+            auto_ack  # Define se as mensagens serão confirmadas automaticamente
+        )
         # Estabelece conexão do canal e configura a fila
         self.channel = self.__create_channel()
 
@@ -74,7 +77,9 @@ class CustomerMessaging:
         # - on_message_callback: função a chamar quando mensagem chegar
         # - auto_ack=True: confirmar automaticamente o recebimento da mensagem
         channel.basic_consume(
-            queue=self.__queue, on_message_callback=self.__callback, auto_ack=True
+            queue=self.__queue,
+            on_message_callback=self.__callback,
+            # auto_ack=self.auto_ack,
         )
 
         return channel
@@ -95,3 +100,12 @@ class CustomerMessaging:
         # Inicia o loop de consumo bloqueante
         # Isso executará indefinidamente até ser parado manualmente
         self.channel.start_consuming()
+
+    def close(self):
+        """
+        Fecha a conexão com o servidor RabbitMQ.
+
+        Este método deve ser chamado para liberar recursos e fechar a conexão
+        quando o consumo de mensagens não for mais necessário.
+        """
+        self.channel.close()
